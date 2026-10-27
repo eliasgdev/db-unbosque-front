@@ -6,7 +6,8 @@ export const routes: Routes = [
     path: '',
     component: MainLayout,
     children: [
-      { path: '', redirectTo: 'pilotos', pathMatch: 'full' },
+      { path: '', redirectTo: 'contabilidad', pathMatch: 'full' },
+      { path: 'contabilidad', loadComponent: () => import('./pages/contabilidad/contabilidad').then((m) => m.Contabilidad) },
       { path: 'pilotos', loadComponent: () => import('./pages/pilotos/pilotos').then((m) => m.Pilotos) },
     ],
   },
