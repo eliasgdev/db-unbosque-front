@@ -7,7 +7,7 @@ import { CurrencyPipe } from '@angular/common';
   template: `
     <article class="stat-card">
       <span>{{ label() }}</span>
-      <strong>{{ value() | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}</strong>
+      <strong>{{ value() | currency: 'COP' : 'symbol-narrow' : '1.0-2' }}</strong>
     </article>
   `,
 })

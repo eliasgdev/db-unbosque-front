@@ -76,3 +76,41 @@ table {
     background: #e4e7eb;
   }
 }
+
+.selector-contexto {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 8px;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
+select {
+  padding: 8px 12px;
+  border: 1px solid #cbd2d9;
+  border-radius: 6px;
+}
+
+tbody tr {
+  cursor: pointer;
+
+  &:hover,
+  &.selected {
+    background: #f0f4f8;
+  }
+}
+
+.ok {
+  color: #2f855a;
+  font-weight: 600;
+}
+
+.error {
+  color: #c53030;
+  font-weight: 600;
+}

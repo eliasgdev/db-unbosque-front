@@ -6,9 +6,17 @@ export const routes: Routes = [
     path: '',
     component: MainLayout,
     children: [
-      { path: '', redirectTo: 'contabilidad', pathMatch: 'full' },
-      { path: 'contabilidad', loadComponent: () => import('./pages/contabilidad/contabilidad').then((m) => m.Contabilidad) },
-      { path: 'pilotos', loadComponent: () => import('./pages/pilotos/pilotos').then((m) => m.Pilotos) },
+      { path: '', redirectTo: 'plan-cuentas', pathMatch: 'full' },
+      { path: 'plan-cuentas', loadComponent: () => import('./pages/plan-cuentas/plan-cuentas').then((m) => m.PlanCuentas) },
+      { path: 'asientos', loadComponent: () => import('./pages/asientos/asientos').then((m) => m.Asientos) },
+      {
+        path: 'estado-resultados',
+        loadComponent: () => import('./pages/estado-resultados/estado-resultados').then((m) => m.EstadoResultadosPage),
+      },
+      {
+        path: 'balance-general',
+        loadComponent: () => import('./pages/balance-general/balance-general').then((m) => m.BalanceGeneralPage),
+      },
     ],
   },
 ];

@@ -1,7 +1,9 @@
-import { Component, input } from '@angular/core';
+import { Component, input, output } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 
 @Component({
   selector: 'app-data-table',
+  imports: [DecimalPipe],
   template: `
     <table>
       <thead>
@@ -13,9 +15,10 @@ import { Component, input } from '@angular/core';
       </thead>
       <tbody>
         @for (row of rows(); track $index) {
-          <tr>
+          <tr [class.selected]="row === selected()" (click)="rowClick.emit(row)">
             @for (col of columns(); track col) {
-              <td>{{ $any(row)[col] }}</td>
+              @let valor = $any(row)[col];
+              <td>{{ typeof valor === 'number' ? (valor | number: '1.0-2') : valor }}</td>
             }
           </tr>
         } @empty {
@@ -28,4 +31,6 @@ import { Component, input } from '@angular/core';
 export class DataTable {
   readonly columns = input<string[]>([]);
   readonly rows = input<object[]>([]);
+  readonly selected = input<object | null>(null);
+  readonly rowClick = output<any>();
 }

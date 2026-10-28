@@ -1,15 +1,15 @@
 # DB Unbosque Front
 
-Angular con Atomic Design.
+Aplicación web de solo lectura del sistema contable: plan de cuentas, asientos, Estado de Resultados y Balance General. Angular con Atomic Design.
 
 ```
 src/app/
   components/
-    atoms/
-    molecules/
-    organisms/
-    templates/
-  pages/
+    atoms/        input, select
+    molecules/    search-field, stat-card
+    organisms/    data-table, selector-contexto
+    templates/    main-layout
+  pages/          plan-cuentas, asientos, estado-resultados, balance-general
   core/
     models/
     services/
@@ -19,3 +19,5 @@ src/app/
 npm install
 npx ng serve
 ```
+
+La URL de la API se configura en `src/environments/environment.ts`.

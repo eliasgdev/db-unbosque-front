@@ -1,18 +1,24 @@
 import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { SelectorContexto } from '../../organisms/selector-contexto/selector-contexto';
 
 @Component({
   selector: 'app-main-layout',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, SelectorContexto],
   template: `
     <header>
-      <h1>DB Unbosque</h1>
+      <h1>Sistema Contable</h1>
       <nav>
-        <a routerLink="/contabilidad" routerLinkActive="active">Contabilidad</a>
-        <a routerLink="/pilotos" routerLinkActive="active">Pilotos</a>
+        <a routerLink="/plan-cuentas" routerLinkActive="active">Plan de cuentas</a>
+        <a routerLink="/asientos" routerLinkActive="active">Asientos</a>
+        <a routerLink="/estado-resultados" routerLinkActive="active">Estado de resultados</a>
+        <a routerLink="/balance-general" routerLinkActive="active">Balance general</a>
       </nav>
     </header>
-    <main><router-outlet /></main>
+    <main>
+      <app-selector-contexto />
+      <router-outlet />
+    </main>
   `,
 })
 export class MainLayout {}
