@@ -4,6 +4,11 @@ export interface Empresa {
   moneda_base: number | null;
 }
 
+export interface TipoCuenta {
+  tipo_cuenta: string;
+  naturaleza: string;
+}
+
 export interface Periodo {
   id: number;
   fecha_inicio: string;
@@ -25,6 +30,9 @@ export interface Asiento {
   fecha: string;
   descripcion: string;
   estado: string;
+  total_debe: number;
+  total_haber: number;
+  cuadra: boolean;
 }
 
 export interface Movimiento {

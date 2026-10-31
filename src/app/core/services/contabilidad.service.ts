@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { Asiento, BalanceGeneral, Cuenta, Empresa, EstadoResultados, Movimiento, Periodo } from '../models/contabilidad';
+import { Asiento, BalanceGeneral, Cuenta, Empresa, EstadoResultados, Movimiento, Periodo, TipoCuenta } from '../models/contabilidad';
 
 type Param = () => string;
 
@@ -11,6 +11,10 @@ export class ContabilidadService {
 
   empresas() {
     return httpResource<Empresa[]>(() => `${this.api}/empresas`, { defaultValue: [] });
+  }
+
+  tiposCuenta() {
+    return httpResource<TipoCuenta[]>(() => `${this.api}/tipos-cuenta`, { defaultValue: [] });
   }
 
   periodos(nit: Param) {

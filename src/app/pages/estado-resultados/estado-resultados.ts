@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { DataTable } from '../../components/organisms/data-table/data-table';
+import { Columna, DataTable } from '../../components/organisms/data-table/data-table';
 import { StatCard } from '../../components/molecules/stat-card/stat-card';
 import { ContabilidadService } from '../../core/services/contabilidad.service';
 import { SeleccionService } from '../../core/services/seleccion.service';
@@ -19,13 +19,18 @@ import { SeleccionService } from '../../core/services/seleccion.service';
       </section>
       <app-data-table [columns]="columns" [rows]="r.cuentas" />
     } @else {
-      <p>Seleccione una empresa y un periodo.</p>
+      <p class="aviso">Seleccione una empresa y un periodo.</p>
     }
   `,
 })
 export class EstadoResultadosPage {
   private readonly seleccion = inject(SeleccionService);
 
-  readonly columns = ['codigo', 'clasificacion', 'tipo_cuenta', 'saldo'];
+  readonly columns: Columna[] = [
+    { key: 'codigo', label: 'Código' },
+    { key: 'clasificacion', label: 'Cuenta' },
+    { key: 'tipo_cuenta', label: 'Tipo' },
+    { key: 'saldo', label: 'Saldo' },
+  ];
   readonly reporte = inject(ContabilidadService).estadoResultados(this.seleccion.periodoId);
 }

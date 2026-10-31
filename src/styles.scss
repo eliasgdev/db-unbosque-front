@@ -26,7 +26,7 @@ header {
 }
 
 main {
-  max-width: 960px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 24px 16px;
 }
@@ -62,6 +62,7 @@ input {
 
 table {
   width: 100%;
+  margin-bottom: 16px;
   border-collapse: collapse;
   background: #fff;
 
@@ -96,13 +97,86 @@ select {
   border-radius: 6px;
 }
 
-tbody tr {
+tbody tr.clickable {
   cursor: pointer;
 
   &:hover,
   &.selected {
     background: #f0f4f8;
   }
+}
+
+tbody tr.selected {
+  box-shadow: inset 3px 0 0 #3e7cb1;
+}
+
+td.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+td.fuerte {
+  font-weight: 600;
+}
+
+td.vacio {
+  color: #7b8794;
+  text-align: center;
+}
+
+tfoot td {
+  font-weight: 600;
+  background: #f5f7fa;
+  border-top: 2px solid #cbd2d9;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.badge-ok {
+  background: #e3f9e5;
+  color: #2f855a;
+}
+
+.badge-error {
+  background: #ffe3e3;
+  color: #c53030;
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 16px;
+
+  app-search-field {
+    flex: 1;
+    min-width: 220px;
+  }
+
+  input {
+    margin-bottom: 0;
+  }
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
+.aviso {
+  color: #52606d;
+}
+
+.table-scroll {
+  overflow-x: auto;
 }
 
 .ok {
@@ -113,4 +187,12 @@ tbody tr {
 .error {
   color: #c53030;
   font-weight: 600;
+}
+
+table th.num {
+  text-align: right;
+}
+
+app-balance-general app-input input {
+  max-width: 220px;
 }

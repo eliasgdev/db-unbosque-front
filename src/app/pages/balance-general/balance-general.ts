@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { DataTable } from '../../components/organisms/data-table/data-table';
+import { Columna, DataTable } from '../../components/organisms/data-table/data-table';
 import { StatCard } from '../../components/molecules/stat-card/stat-card';
 import { Input } from '../../components/atoms/input/input';
 import { ContabilidadService } from '../../core/services/contabilidad.service';
@@ -23,14 +23,19 @@ import { SeleccionService } from '../../core/services/seleccion.service';
       </p>
       <app-data-table [columns]="columns" [rows]="r.cuentas" />
     } @else {
-      <p>Seleccione una empresa y una fecha de corte.</p>
+      <p class="aviso">Seleccione una empresa y una fecha de corte.</p>
     }
   `,
 })
 export class BalanceGeneralPage {
   private readonly seleccion = inject(SeleccionService);
 
-  readonly columns = ['codigo', 'clasificacion', 'tipo_cuenta', 'saldo'];
+  readonly columns: Columna[] = [
+    { key: 'codigo', label: 'Código' },
+    { key: 'clasificacion', label: 'Cuenta' },
+    { key: 'tipo_cuenta', label: 'Tipo' },
+    { key: 'saldo', label: 'Saldo' },
+  ];
   readonly fechaCorte = signal(new Date().toISOString().slice(0, 10));
   readonly reporte = inject(ContabilidadService).balanceGeneral(this.seleccion.nit, this.fechaCorte);
 }
