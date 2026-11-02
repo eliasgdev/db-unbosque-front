@@ -47,5 +47,11 @@ export class BalanceGeneralPage {
   ];
   readonly fechaCorte = signal(new Date().toISOString().slice(0, 10));
   readonly reporte = inject(ContabilidadService).balanceGeneral(this.seleccion.empresaId, this.fechaCorte);
-  readonly filas = computed(() => (this.reporte.hasValue() ? aplanarRubros(this.reporte.value().rubros) : []));
+  readonly filas = computed(() => {
+    if (!this.reporte.hasValue()) return [];
+    const r = this.reporte.value();
+    // La API entrega la utilidad del ejercicio aparte; se muestra como fila para que el patrimonio cuadre con su total.
+    const utilidad = r.utilidad_ejercicio ? [{ codigo: '', nombre: 'Utilidad del ejercicio en curso', nivel: 2, valor: r.utilidad_ejercicio }] : [];
+    return [...aplanarRubros(r.rubros), ...utilidad];
+  });
 }
