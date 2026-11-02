@@ -13,12 +13,27 @@ header {
   background: #1f2933;
   color: #fff;
 
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 0;
+  }
+
   nav a {
-    margin-left: 16px;
+    padding: 6px 14px;
+    border: 1px solid #52606d;
+    border-radius: 6px;
     color: #cbd2d9;
     text-decoration: none;
 
+    &:hover {
+      border-color: #9aa5b1;
+      color: #fff;
+    }
+
     &.active {
+      border-color: #fff;
       color: #fff;
       font-weight: 600;
     }
