@@ -42,3 +42,9 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Variables de entorno, llaves y respaldos que nunca deben subirse
+.env
+.env.*
+*.pem
+*.key
