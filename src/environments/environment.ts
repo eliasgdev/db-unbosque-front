@@ -1,3 +1,4 @@
+// Producción: la API se sirve en el mismo dominio detrás del proxy inverso de nginx.
 export const environment = {
-  apiUrl: 'http://localhost:8000/api/v1',
+  apiUrl: '/api/v1',
 };
