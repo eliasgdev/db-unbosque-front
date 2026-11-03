@@ -1,15 +1,25 @@
 # DB Unbosque Front
 
-Aplicación web de solo lectura del sistema contable: plan de cuentas, asientos, Estado de Resultados y Balance General. Angular con Atomic Design.
+Aplicación web del sistema contable, en Angular con Atomic Design. Consulta el plan de cuentas, los asientos, el Estado de Resultados y el Balance General, y permite registrar datos a través de la API:
+
+| Sección | Consultar | Registrar |
+|---|---|---|
+| Plan de cuentas | Árbol jerárquico con filtros | Nueva cuenta (sugiere tipo y rubro del padre) |
+| Asientos | Lista del periodo y movimientos | Nuevo asiento, edición en borrador y contabilización |
+| Terceros | Terceros y centros de costo | Nuevo tercero y nuevo centro de costo |
+| Empresas | Empresas y periodos | Nueva empresa, apertura y cierre de periodo |
+| Estado de resultados / Balance general | Reportes calculados por la API | — |
+
+La API no expone operaciones de borrado: los registros se corrigen editando el asiento mientras está en borrador.
 
 ```
 src/app/
   components/
     atoms/        input, select
     molecules/    search-field, stat-card
-    organisms/    data-table, selector-contexto
+    organisms/    data-table, selector-contexto, asiento-form
     templates/    main-layout
-  pages/          plan-cuentas, asientos, estado-resultados, balance-general
+  pages/          plan-cuentas, asientos, terceros, empresas, estado-resultados, balance-general
   core/
     models/
     services/

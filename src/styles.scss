@@ -211,3 +211,177 @@ table th.num {
 app-balance-general app-input input {
   max-width: 220px;
 }
+
+/* ---------- Registro (formularios, paneles y botones) ---------- */
+
+.titulo-pagina {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.panel {
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background: #fff;
+  border: 1px solid #e4e7eb;
+  border-radius: 8px;
+
+  h3 {
+    margin-top: 0;
+  }
+
+  table {
+    margin-bottom: 0;
+  }
+}
+
+.dos-columnas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+
+.form-grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 150px;
+  }
+
+  label.ancho {
+    flex: 1 1 260px;
+  }
+
+  label.check {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+
+  input {
+    margin-bottom: 0;
+  }
+
+  input[type='checkbox'] {
+    width: auto;
+  }
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.btn-primario,
+.btn-secundario,
+.btn-peligro,
+.btn-icono {
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font: inherit;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+.btn-primario {
+  background: #1f2933;
+  color: #fff;
+
+  &:hover:not(:disabled) {
+    background: #323f4b;
+  }
+}
+
+.btn-secundario {
+  background: #fff;
+  border-color: #cbd2d9;
+  color: #1f2933;
+
+  &:hover:not(:disabled) {
+    background: #f5f7fa;
+  }
+}
+
+.btn-peligro {
+  background: #c53030;
+  color: #fff;
+}
+
+.btn-icono {
+  padding: 4px 10px;
+  background: transparent;
+  border-color: #cbd2d9;
+}
+
+.tabla-lineas {
+  select,
+  input {
+    width: 100%;
+    min-width: 120px;
+    margin: 0;
+    box-sizing: border-box;
+  }
+
+  input.monto {
+    text-align: right;
+  }
+
+  td {
+    padding: 6px 8px;
+  }
+}
+
+.panel td:first-child {
+  white-space: nowrap;
+}
+
+.contador {
+  margin-left: 6px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #e4e7eb;
+  font-size: 0.8rem;
+}
+
+.toast {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 10;
+  max-width: 420px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: #2f855a;
+  color: #fff;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 20%);
+  cursor: pointer;
+}
+
+.toast-error {
+  background: #c53030;
+}
+
+@media (max-width: 640px) {
+  .dos-columnas {
+    grid-template-columns: 1fr;
+  }
+}
