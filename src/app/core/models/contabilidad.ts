@@ -131,3 +131,94 @@ export interface FilaArbol {
   nivel: number;
   valor?: number;
 }
+
+// ---------- Catálogos y registros auxiliares ----------
+
+export interface Moneda {
+  id_moneda: number;
+  codigo: string;
+  nombre: string;
+  simbolo: string;
+}
+
+export interface RubroEstado {
+  id_rubro: number;
+  id_rubro_padre: number | null;
+  codigo: string;
+  nombre: string;
+  estado_financiero: 'BALANCE' | 'RESULTADOS';
+  orden: number;
+}
+
+export interface TipoAsiento {
+  id_tipo_asiento: number;
+  nombre: string;
+}
+
+export type TipoTercero = 'CLIENTE' | 'PROVEEDOR' | 'OTRO';
+
+export interface Tercero {
+  id_tercero: number;
+  id_empresa: number;
+  documento: string;
+  nombre: string;
+  tipo: TipoTercero;
+}
+
+export interface CentroCosto {
+  id_centro_costo: number;
+  id_empresa: number;
+  codigo: string;
+  nombre: string;
+}
+
+// ---------- Cuerpos de las peticiones de registro ----------
+
+export interface EmpresaEntrada {
+  nit: string;
+  razon_social: string;
+  id_moneda: number;
+}
+
+export interface PeriodoEntrada {
+  fecha_inicio: string;
+  fecha_fin: string;
+}
+
+export interface CuentaEntrada {
+  id_cuenta_padre: number | null;
+  id_tipo_cuenta: number;
+  id_rubro: number;
+  codigo: string;
+  nombre: string;
+  nivel: number;
+  acepta_movimiento: boolean;
+}
+
+export interface TerceroEntrada {
+  documento: string;
+  nombre: string;
+  tipo: TipoTercero;
+}
+
+export interface CentroCostoEntrada {
+  codigo: string;
+  nombre: string;
+}
+
+/** Los montos viajan como texto para que la API los reciba como Decimal exacto. */
+export interface MovimientoEntrada {
+  id_cuenta: number;
+  id_tercero: number | null;
+  id_centro_costo: number | null;
+  debe: string;
+  haber: string;
+}
+
+export interface AsientoEntrada {
+  id_tipo_asiento: number;
+  numero?: number;
+  fecha: string;
+  descripcion: string;
+  movimientos: MovimientoEntrada[];
+}
