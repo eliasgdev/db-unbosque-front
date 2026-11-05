@@ -1,52 +1,166 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Columna, DataTable } from '../../components/organisms/data-table/data-table';
+import { Modal } from '../../components/organisms/modal/modal';
 import { AvisoApi } from '../../components/molecules/aviso-api/aviso-api';
+import { Encabezado } from '../../components/molecules/encabezado/encabezado';
+import { EstadoVacio } from '../../components/molecules/estado-vacio/estado-vacio';
+import { Buscador } from '../../components/molecules/buscador/buscador';
+import { Icono } from '../../components/atoms/icono/icono';
 import { TipoTercero } from '../../core/models/contabilidad';
 import { ContabilidadService } from '../../core/services/contabilidad.service';
 import { NotificacionService } from '../../core/services/notificacion.service';
 import { SeleccionService } from '../../core/services/seleccion.service';
 import { mensajeError } from '../../core/utils/errores';
 
+type Pestana = 'terceros' | 'centros';
+
 @Component({
   selector: 'app-terceros',
-  imports: [DataTable, AvisoApi, FormsModule],
+  imports: [DataTable, Modal, AvisoApi, Encabezado, EstadoVacio, Buscador, Icono, FormsModule],
   template: `
-    <h2>Terceros y centros de costo</h2>
-    @if (seleccion.empresaId()) {
-      <div class="dos-columnas">
-        <section class="panel">
-          <h3>Terceros <span class="contador">{{ cantidadTerceros() }}</span></h3>
-          <form class="form-grid" (ngSubmit)="crearTercero()">
-            <label>Documento <input [(ngModel)]="tercero.documento" name="documento" maxlength="20" placeholder="NIT o cédula" /></label>
-            <label class="ancho">Nombre <input [(ngModel)]="tercero.nombre" name="nombre" maxlength="200" /></label>
-            <label>
-              Tipo
-              <select [(ngModel)]="tercero.tipo" name="tipo">
-                <option value="CLIENTE">Cliente</option>
-                <option value="PROVEEDOR">Proveedor</option>
-                <option value="OTRO">Otro</option>
-              </select>
-            </label>
-            <button type="submit" class="btn-primario" [disabled]="guardando()">Agregar tercero</button>
-          </form>
-          <app-aviso-api [error]="terceros.error()" />
-          <app-data-table [columns]="columnasTercero" [rows]="terceros.hasValue() ? terceros.value() : []" />
-        </section>
+    <app-encabezado
+      titulo="Terceros y centros de costo"
+      subtitulo="Clientes, proveedores y áreas a las que se imputan los movimientos."
+    >
+      @if (seleccion.empresaId()) {
+        <button type="button" class="btn btn-primario" (click)="dialogo.set(pestana())">
+          <app-icono nombre="mas" [tam]="16" />
+          {{ pestana() === 'terceros' ? 'Nuevo tercero' : 'Nuevo centro de costo' }}
+        </button>
+      }
+    </app-encabezado>
 
-        <section class="panel">
-          <h3>Centros de costo <span class="contador">{{ cantidadCentros() }}</span></h3>
-          <form class="form-grid" (ngSubmit)="crearCentro()">
-            <label>Código <input [(ngModel)]="centro.codigo" name="codigo" maxlength="20" /></label>
-            <label class="ancho">Nombre <input [(ngModel)]="centro.nombre" name="nombreCentro" maxlength="150" /></label>
-            <button type="submit" class="btn-primario" [disabled]="guardando()">Agregar centro</button>
-          </form>
-          <app-aviso-api [error]="centros.error()" />
-          <app-data-table [columns]="columnasCentro" [rows]="centros.hasValue() ? centros.value() : []" />
-        </section>
-      </div>
+    @if (!seleccion.empresaId()) {
+      <app-estado-vacio
+        titulo="Sin empresa seleccionada"
+        texto="Elija una empresa en la barra superior."
+        icono="empresas"
+      />
     } @else {
-      <p class="aviso">Seleccione una empresa.</p>
+      <nav class="pestanas" role="tablist">
+        <button
+          type="button"
+          role="tab"
+          [class.activo]="pestana() === 'terceros'"
+          (click)="pestana.set('terceros')"
+        >
+          Terceros <span class="contador">{{ listaTerceros().length }}</span>
+        </button>
+        <button
+          type="button"
+          role="tab"
+          [class.activo]="pestana() === 'centros'"
+          (click)="pestana.set('centros')"
+        >
+          Centros de costo <span class="contador">{{ listaCentros().length }}</span>
+        </button>
+      </nav>
+
+      <section class="tarjeta tarjeta-tabla">
+        <div class="barra-herramientas">
+          @if (pestana() === 'terceros') {
+            <div class="segmentos">
+              @for (t of tipos; track t.valor) {
+                <button
+                  type="button"
+                  [class.activo]="tipo() === t.valor"
+                  (click)="tipo.set(t.valor)"
+                >
+                  {{ t.texto }}
+                </button>
+              }
+            </div>
+          } @else {
+            <span></span>
+          }
+          <app-buscador
+            [(term)]="term"
+            [placeholder]="
+              pestana() === 'terceros' ? 'Buscar documento o nombre' : 'Buscar código o nombre'
+            "
+          />
+        </div>
+        @if (pestana() === 'terceros') {
+          <app-aviso-api [error]="terceros.error()" />
+          <app-data-table
+            [columns]="columnasTercero"
+            [rows]="tercerosFiltrados()"
+            [cargando]="terceros.isLoading()"
+            vacio="No hay terceros que coincidan."
+          />
+        } @else {
+          <app-aviso-api [error]="centros.error()" />
+          <app-data-table
+            [columns]="columnasCentro"
+            [rows]="centrosFiltrados()"
+            [cargando]="centros.isLoading()"
+            vacio="No hay centros de costo que coincidan."
+          />
+        }
+      </section>
+    }
+
+    @if (dialogo() === 'terceros') {
+      <app-modal
+        titulo="Nuevo tercero"
+        [subtitulo]="seleccion.empresa()?.razon_social ?? ''"
+        (cerrar)="dialogo.set('')"
+      >
+        <form class="form-grid" (ngSubmit)="crearTercero()">
+          <label
+            >Documento
+            <input
+              [(ngModel)]="tercero.documento"
+              name="documento"
+              maxlength="20"
+              placeholder="NIT o cédula"
+          /></label>
+          <label>
+            Tipo
+            <select [(ngModel)]="tercero.tipo" name="tipo">
+              <option value="CLIENTE">Cliente</option>
+              <option value="PROVEEDOR">Proveedor</option>
+              <option value="OTRO">Otro</option>
+            </select>
+          </label>
+          <label class="ancho"
+            >Nombre <input [(ngModel)]="tercero.nombre" name="nombre" maxlength="200"
+          /></label>
+          <div class="acciones acciones-modal ancho">
+            <button type="button" class="btn btn-secundario" (click)="dialogo.set('')">
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primario" [disabled]="guardando()">
+              Registrar tercero
+            </button>
+          </div>
+        </form>
+      </app-modal>
+    } @else if (dialogo() === 'centros') {
+      <app-modal
+        titulo="Nuevo centro de costo"
+        [subtitulo]="seleccion.empresa()?.razon_social ?? ''"
+        (cerrar)="dialogo.set('')"
+      >
+        <form class="form-grid" (ngSubmit)="crearCentro()">
+          <label
+            >Código
+            <input [(ngModel)]="centro.codigo" name="codigo" maxlength="20" placeholder="CC-ADM-01"
+          /></label>
+          <label class="ancho"
+            >Nombre <input [(ngModel)]="centro.nombre" name="nombreCentro" maxlength="150"
+          /></label>
+          <div class="acciones acciones-modal ancho">
+            <button type="button" class="btn btn-secundario" (click)="dialogo.set('')">
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primario" [disabled]="guardando()">
+              Registrar centro
+            </button>
+          </div>
+        </form>
+      </app-modal>
     }
   `,
 })
@@ -57,19 +171,42 @@ export class Terceros {
 
   readonly terceros = this.service.terceros(this.seleccion.empresaId);
   readonly centros = this.service.centrosCosto(this.seleccion.empresaId);
-  readonly cantidadTerceros = computed(() => (this.terceros.hasValue() ? this.terceros.value().length : 0));
-  readonly cantidadCentros = computed(() => (this.centros.hasValue() ? this.centros.value().length : 0));
   readonly guardando = signal(false);
+  readonly pestana = signal<Pestana>('terceros');
+  readonly dialogo = signal<'' | Pestana>('');
+  readonly term = signal('');
+  readonly tipo = signal<'' | TipoTercero>('');
 
+  readonly tipos: { valor: '' | TipoTercero; texto: string }[] = [
+    { valor: '', texto: 'Todos' },
+    { valor: 'CLIENTE', texto: 'Clientes' },
+    { valor: 'PROVEEDOR', texto: 'Proveedores' },
+    { valor: 'OTRO', texto: 'Otros' },
+  ];
   readonly columnasTercero: Columna[] = [
-    { key: 'documento', label: 'Documento' },
+    { key: 'documento', label: 'Documento', tipo: 'codigo', ancho: '160px' },
     { key: 'nombre', label: 'Nombre' },
-    { key: 'tipo', label: 'Tipo' },
+    { key: 'tipo', label: 'Tipo', tipo: 'estado', ancho: '140px' },
   ];
   readonly columnasCentro: Columna[] = [
-    { key: 'codigo', label: 'Código' },
+    { key: 'codigo', label: 'Código', tipo: 'codigo', ancho: '160px' },
     { key: 'nombre', label: 'Nombre' },
   ];
+
+  readonly listaTerceros = computed(() => (this.terceros.hasValue() ? this.terceros.value() : []));
+  readonly listaCentros = computed(() => (this.centros.hasValue() ? this.centros.value() : []));
+  readonly tercerosFiltrados = computed(() => {
+    const t = this.term().trim().toLowerCase();
+    return this.listaTerceros().filter(
+      (x) =>
+        (!this.tipo() || x.tipo === this.tipo()) &&
+        `${x.documento} ${x.nombre}`.toLowerCase().includes(t),
+    );
+  });
+  readonly centrosFiltrados = computed(() => {
+    const t = this.term().trim().toLowerCase();
+    return this.listaCentros().filter((x) => `${x.codigo} ${x.nombre}`.toLowerCase().includes(t));
+  });
 
   tercero = { documento: '', nombre: '', tipo: 'CLIENTE' as TipoTercero };
   centro = { codigo: '', nombre: '' };
@@ -109,6 +246,7 @@ export class Terceros {
     this.guardando.set(true);
     try {
       await accion();
+      this.dialogo.set('');
     } catch (e) {
       this.notificacion.error(mensajeError(e));
     } finally {

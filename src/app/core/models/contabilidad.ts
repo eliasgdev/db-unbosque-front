@@ -124,12 +124,13 @@ export interface BalanceGeneral {
   rubros: RubroReporte[];
 }
 
-/** Fila plana para pintar árboles (plan de cuentas, rubros) en la tabla con sangría. */
-export interface FilaArbol {
+/** Fila plana de un estado financiero: rubro con subtotal, cuenta con saldo o línea de resultado. */
+export interface FilaReporte {
+  tipo: 'rubro' | 'cuenta' | 'total' | 'resultado';
   codigo: string;
   nombre: string;
   nivel: number;
-  valor?: number;
+  valor: number;
 }
 
 // ---------- Catálogos y registros auxiliares ----------
@@ -221,4 +222,19 @@ export interface AsientoEntrada {
   fecha: string;
   descripcion: string;
   movimientos: MovimientoEntrada[];
+}
+
+export interface CierrePeriodo {
+  id_cierre: number;
+  id_periodo: number;
+  id_asiento_cierre: number;
+  utilidad_neta: number;
+  fecha_cierre: string;
+}
+
+export interface EstadoApi {
+  estado: 'ok' | 'degradado';
+  servicio: string;
+  entorno: string;
+  base_datos: string;
 }

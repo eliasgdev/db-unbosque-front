@@ -1,5 +1,5 @@
 import { HttpClient, httpResource } from '@angular/common/http';
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, resource, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
@@ -8,11 +8,13 @@ import {
   AsientoEntrada,
   BalanceGeneral,
   CentroCosto,
+  CierrePeriodo,
   CentroCostoEntrada,
   CuentaArbol,
   CuentaEntrada,
   Empresa,
   EmpresaEntrada,
+  EstadoApi,
   EstadoResultados,
   Moneda,
   Periodo,
@@ -51,7 +53,10 @@ function convertirMontos<T>(valor: unknown): T {
   if (Array.isArray(valor)) return valor.map((v) => convertirMontos(v)) as T;
   if (valor && typeof valor === 'object') {
     return Object.fromEntries(
-      Object.entries(valor).map(([k, v]) => [k, MONTOS.has(k) && typeof v === 'string' ? Number(v) : convertirMontos(v)]),
+      Object.entries(valor).map(([k, v]) => [
+        k,
+        MONTOS.has(k) && typeof v === 'string' ? Number(v) : convertirMontos(v),
+      ]),
     ) as T;
   }
   return valor as T;
@@ -75,8 +80,14 @@ export class ContabilidadService {
 
   // ---------- Consultas ----------
 
+  salud() {
+    return httpResource<EstadoApi>(() => `${this.api}/health`);
+  }
+
   empresas() {
-    return httpResource<Empresa[]>(() => this.peticion(`${this.api}/empresas`), { defaultValue: [] });
+    return httpResource<Empresa[]>(() => this.peticion(`${this.api}/empresas`), {
+      defaultValue: [],
+    });
   }
 
   monedas() {
@@ -96,46 +107,71 @@ export class ContabilidadService {
   }
 
   periodos(idEmpresa: Param) {
-    return httpResource<Periodo[]>(() => (idEmpresa() ? this.peticion(`${this.api}/empresas/${idEmpresa()}/periodos`) : undefined), {
-      defaultValue: [],
-    });
+    return httpResource<Periodo[]>(
+      () =>
+        idEmpresa() ? this.peticion(`${this.api}/empresas/${idEmpresa()}/periodos`) : undefined,
+      {
+        defaultValue: [],
+      },
+    );
   }
 
   cuentas(idEmpresa: Param) {
-    return httpResource<CuentaArbol[]>(() => (idEmpresa() ? this.peticion(`${this.api}/empresas/${idEmpresa()}/cuentas`) : undefined), {
-      defaultValue: [],
-    });
+    return httpResource<CuentaArbol[]>(
+      () =>
+        idEmpresa() ? this.peticion(`${this.api}/empresas/${idEmpresa()}/cuentas`) : undefined,
+      {
+        defaultValue: [],
+      },
+    );
   }
 
   terceros(idEmpresa: Param) {
-    return httpResource<Tercero[]>(() => (idEmpresa() ? this.peticion(`${this.api}/empresas/${idEmpresa()}/terceros`) : undefined), {
-      defaultValue: [],
-    });
+    return httpResource<Tercero[]>(
+      () =>
+        idEmpresa() ? this.peticion(`${this.api}/empresas/${idEmpresa()}/terceros`) : undefined,
+      {
+        defaultValue: [],
+      },
+    );
   }
 
   centrosCosto(idEmpresa: Param) {
     return httpResource<CentroCosto[]>(
-      () => (idEmpresa() ? this.peticion(`${this.api}/empresas/${idEmpresa()}/centros-costo`) : undefined),
+      () =>
+        idEmpresa()
+          ? this.peticion(`${this.api}/empresas/${idEmpresa()}/centros-costo`)
+          : undefined,
       { defaultValue: [] },
     );
   }
 
   asientos(idPeriodo: Param) {
-    return httpResource<Asiento[]>(() => (idPeriodo() ? this.peticion(`${this.api}/periodos/${idPeriodo()}/asientos`) : undefined), {
-      defaultValue: [],
-      parse: convertirMontos<Asiento[]>,
-    });
+    return httpResource<Asiento[]>(
+      () =>
+        idPeriodo() ? this.peticion(`${this.api}/periodos/${idPeriodo()}/asientos`) : undefined,
+      {
+        defaultValue: [],
+        parse: convertirMontos<Asiento[]>,
+      },
+    );
   }
 
   asiento(idAsiento: Param) {
-    return httpResource<AsientoDetalle>(() => (idAsiento() ? this.peticion(`${this.api}/asientos/${idAsiento()}`) : undefined), {
-      parse: convertirMontos<AsientoDetalle>,
-    });
+    return httpResource<AsientoDetalle>(
+      () => (idAsiento() ? this.peticion(`${this.api}/asientos/${idAsiento()}`) : undefined),
+      {
+        parse: convertirMontos<AsientoDetalle>,
+      },
+    );
   }
 
   estadoResultados(idPeriodo: Param) {
     return httpResource<EstadoResultados>(
-      () => (idPeriodo() ? this.peticion(`${this.api}/periodos/${idPeriodo()}/estado-resultados`) : undefined),
+      () =>
+        idPeriodo()
+          ? this.peticion(`${this.api}/periodos/${idPeriodo()}/estado-resultados`)
+          : undefined,
       { parse: convertirMontos<EstadoResultados> },
     );
   }
@@ -144,10 +180,28 @@ export class ContabilidadService {
     return httpResource<BalanceGeneral>(
       () =>
         idEmpresa() && fechaCorte()
-          ? this.peticion(`${this.api}/empresas/${idEmpresa()}/balance-general`, { fecha_corte: fechaCorte() })
+          ? this.peticion(`${this.api}/empresas/${idEmpresa()}/balance-general`, {
+              fecha_corte: fechaCorte(),
+            })
           : undefined,
       { parse: convertirMontos<BalanceGeneral> },
     );
+  }
+
+  /** Cierres de los periodos indicados (la API los entrega uno por periodo). */
+  cierres(idsPeriodo: () => number[]) {
+    return resource({
+      params: () => ({ ids: idsPeriodo(), v: this.version() }),
+      loader: ({ params }) =>
+        Promise.all(
+          params.ids.map((id) =>
+            firstValueFrom(this.http.get<CierrePeriodo>(`${this.api}/periodos/${id}/cierre`)).then(
+              (c) => convertirMontos<CierrePeriodo>(c),
+            ),
+          ),
+        ),
+      defaultValue: [],
+    });
   }
 
   // ---------- Registro ----------
@@ -161,7 +215,9 @@ export class ContabilidadService {
   }
 
   cerrarPeriodo(idPeriodo: number, idCuentaPatrimonio: number) {
-    return this.enviar('post', `${this.api}/periodos/${idPeriodo}/cierre`, { id_cuenta_patrimonio: idCuentaPatrimonio });
+    return this.enviar('post', `${this.api}/periodos/${idPeriodo}/cierre`, {
+      id_cuenta_patrimonio: idCuentaPatrimonio,
+    });
   }
 
   crearCuenta(idEmpresa: number, datos: CuentaEntrada) {
@@ -173,7 +229,11 @@ export class ContabilidadService {
   }
 
   crearCentroCosto(idEmpresa: number, datos: CentroCostoEntrada) {
-    return this.enviar<CentroCosto>('post', `${this.api}/empresas/${idEmpresa}/centros-costo`, datos);
+    return this.enviar<CentroCosto>(
+      'post',
+      `${this.api}/empresas/${idEmpresa}/centros-costo`,
+      datos,
+    );
   }
 
   crearAsiento(idPeriodo: number, datos: AsientoEntrada) {
@@ -185,10 +245,18 @@ export class ContabilidadService {
   }
 
   contabilizarAsiento(idAsiento: number) {
-    return this.enviar<AsientoDetalle>('post', `${this.api}/asientos/${idAsiento}/contabilizar`, {});
+    return this.enviar<AsientoDetalle>(
+      'post',
+      `${this.api}/asientos/${idAsiento}/contabilizar`,
+      {},
+    );
   }
 
-  private async enviar<T = unknown>(metodo: 'post' | 'put', url: string, cuerpo: unknown): Promise<T> {
+  private async enviar<T = unknown>(
+    metodo: 'post' | 'put',
+    url: string,
+    cuerpo: unknown,
+  ): Promise<T> {
     const resultado = await firstValueFrom(this.http.request<T>(metodo, url, { body: cuerpo }));
     this.version.update((v) => v + 1);
     return resultado;
