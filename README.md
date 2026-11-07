@@ -4,6 +4,7 @@ Aplicación web del sistema contable, en Angular con Atomic Design. Consulta el 
 
 | Sección | Consultar | Registrar |
 |---|---|---|
+| Resumen | Indicadores del periodo, asientos recientes y ecuación contable | — |
 | Plan de cuentas | Árbol jerárquico con filtros | Nueva cuenta (sugiere tipo y rubro del padre) |
 | Asientos | Lista del periodo y movimientos | Nuevo asiento, edición en borrador y contabilización |
 | Terceros | Terceros y centros de costo | Nuevo tercero y nuevo centro de costo |
@@ -15,14 +16,16 @@ La API no expone operaciones de borrado: los registros se corrigen editando el a
 ```
 src/app/
   components/
-    atoms/        input, select
-    molecules/    search-field, stat-card
-    organisms/    data-table, selector-contexto, asiento-form
-    templates/    main-layout
-  pages/          plan-cuentas, asientos, terceros, empresas, estado-resultados, balance-general
+    atoms/        icono
+    molecules/    aviso-api, buscador, encabezado, estado-vacio, stat-card
+    organisms/    data-table, estado-financiero, modal, selector-contexto, asiento-form
+    templates/    main-layout (menú lateral y barra de empresa/periodo)
+  pages/          inicio, plan-cuentas, asientos, terceros, empresas, estado-resultados, balance-general
   core/
     models/
-    services/
+    services/     contabilidad (API), seleccion (empresa y periodo de trabajo), notificacion
+    utils/        arbol, errores, formato (montos es-CO en la moneda de la empresa, fechas)
+  shared/pipes/   monto, fecha, etiqueta
 ```
 
 ```bash
@@ -31,6 +34,8 @@ npx ng serve
 ```
 
 La URL de la API se configura en `src/environments/environment.ts`.
+
+La empresa y el periodo elegidos se recuerdan en el navegador; si no hay selección, se toma la primera empresa y su periodo abierto más reciente. Los montos se muestran en la moneda base de la empresa. La interfaz sigue el modo claro u oscuro del sistema, y los reportes tienen un formato de impresión.
 
 ## Entornos
 
